@@ -1,4 +1,4 @@
-EDA and model creation: Create 2 files in components folder
+# EDA and model creation: Create 2 files in components folder
 
 
 Student Performance Indicator
