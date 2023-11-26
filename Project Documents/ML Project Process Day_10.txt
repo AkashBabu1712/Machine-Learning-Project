@@ -1,0 +1,79 @@
+Deployment Of ML Application In Azure Cloud Using Github Actions:
+-------------------------------------------------------------------
+
+Prerequisites:
+Azure Account: You need an Azure account. If you don't have one, you can create a free account at Azure Portal.
+
+GitHub Repository: Your ML application code should be hosted on GitHub.
+
+Azure Machine Learning Service: Set up Azure Machine Learning service. You can create a workspace from the Azure Portal.
+
+Azure CLI: Install Azure CLI on your local machine. You can download it from here.
+
+Docker: Ensure Docker is installed on your local machine.
+
+Steps:
+1. Set Up Azure Machine Learning Environment:
+Open your Azure Portal.
+Create an Azure Machine Learning Workspace.
+Retrieve the workspace details like subscription ID, resource group, and workspace name.
+2. Add Azure Credentials to GitHub Repository:
+In your GitHub repository, go to Settings.
+Navigate to Secrets > New Repository Secret.
+Add Azure credentials such as AZURE_SUBSCRIPTION_ID, AZURE_RESOURCE_GROUP, AZURE_WORKSPACE_NAME, AZURE_MACHINELEARNING_KEY (you can find this key in your Azure Machine Learning Workspace).
+3. Configure GitHub Actions Workflow:
+Create a .github/workflows/azure-ml-deploy.yml file in your repository with the following content:
+
+yaml
+Copy code
+name: Azure ML Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build Docker Image
+        run: |
+          docker build -t your-docker-image-name .
+
+      - name: Push Docker Image to Azure Container Registry
+        run: |
+          az acr login --name your-acr-name
+          docker tag your-docker-image-name your-acr-name.azurecr.io/your-docker-image-name:latest
+          docker push your-acr-name.azurecr.io/your-docker-image-name:latest
+
+      - name: Deploy to Azure ML
+        run: |
+          az ml model deploy -n your-deployment-name --image your-acr-name.azurecr.io/your-docker-image-name:latest --cpu 1 --memory 1 -f your-inference-config-file.yml
+Replace placeholders like your-docker-image-name, your-acr-name, your-deployment-name, and your-inference-config-file.yml with your actual values.
+
+4. Commit and Push:
+Commit the changes to your repository and push them to the main branch.
+
+5. Monitor Deployment:
+Go to the Actions tab in your GitHub repository to monitor the deployment workflow. If everything is set up correctly, your ML application will be deployed to Azure whenever changes are pushed to the main branch.
+

@@ -1,0 +1,15 @@
+Deployment In AWS Cloud Using CI/CD Pipelines:
+------------------------------------------------
+
+Create a folder ".ebextensions" --> python.config file
+
+option_settings:
+  "aws:elasticbeanstalk:container:python":
+    WSGIPath: application:application 
+
+Add application.py -- same as app.py
+
+
+In AWS create an application "application Name" --> Now create a pipeline
+
+GitHub --> make pipeline --> AWS elastic netbean
